@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 
-export default (req: Request, res: Response) => {
-    const index = {
-        Posts: "/posts",
+export const index = (req: Request, res: Response) => {
+    const root = {
+        Users: "/users/",
     };
-    res.send(index);
+    res.send(root);
 };

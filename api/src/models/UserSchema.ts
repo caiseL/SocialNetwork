@@ -1,12 +1,11 @@
 import mongoose from "mongoose";
 
 const Schema = mongoose.Schema;
-
 const UserSchema: mongoose.Schema = new Schema({
-    username: {
+    profileName: {
         type: String,
         required: true,
-        maxLength: 20,
+        maxLength: 40,
     },
     profilePhoto: {
         type: String,
@@ -18,14 +17,18 @@ const UserSchema: mongoose.Schema = new Schema({
     },
     phoneNumber: {
         type: Number,
-        required: false,
         maxLength: 15,
     },
     password: {
         type: String,
         required: true,
     },
+    friends: [
+        {
+            type: Schema.Types.ObjectId,
+            ref: "Friend",
+        },
+    ],
 });
 
-const User = mongoose.model("User", UserSchema);
-module.exports = User;
+export const User = mongoose.model("User", UserSchema);
