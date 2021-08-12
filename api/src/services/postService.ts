@@ -1,56 +1,33 @@
-import { Post } from "../models/PostSchema";
+import express from "express";
+import { PostService } from "../controllers/postController";
 
-export class PostService {
-    static async getAllPost() {
-        try {
-            const allPost = await Post.find({});
-            return allPost;
-        } catch (e) {
-            console.log(`Couldn't fetch every post ${e}`);
-        }
-    }
+const getPosts = async (req: express.Request, res: express.Response) => {
+    let posts = await PostService.getAllPost();
+    res.status(200).send({ posts: posts });
+};
 
-    static async getPostById(postID: string) {
-        try {
-            const post = await Post.findById(postID);
-            return post;
-        } catch (e) {
-            console.log(`Couldn't get that post ${e}`);
-        }
-    }
+const getPostById = async (req: express.Request, res: express.Response) => {
+    const requestID = req.params.id;
+    let post = await PostService.getPostById(requestID);
+    res.status(200).send({ post: post });
+};
 
-    static async createPost(data: { [key: string]: string }) {
-        try {
-            const newPost = new Post(data);
-            const response = await newPost.save();
-            return response;
-        } catch (e) {
-            throw e;
-        }
-    }
+const deletePostById = (req: express.Request, res: express.Response) => {
+    const postToDelete = req.params.id;
+    let deletedPost = PostService.deletePostById(postToDelete);
 
-    static async deletePostById(postID: string) {
-        try {
-            const deletedPost = await Post.findOneAndDelete({
-                _id: postID,
-            });
-            return deletedPost;
-        } catch (e) {
-            console.error(e);
-        }
-    }
+    res.status(200).send({ post: deletedPost });
+};
 
-    static async updatePostById(
-        data: { [key: string]: string },
-        postID: string
-    ) {
-        try {
-            const updatedPost = await Post.findOneAndUpdate({
-                _id: postID,
-            });
-            return updatedPost;
-        } catch (e) {
-            console.error(e);
-        }
-    }
-}
+const updatePostById = (req: express.Request, res: express.Response) => {
+    const toUpdate = req.body;
+    console.log(toUpdate);
+};
+
+const createPost = async (req: express.Request, res: express.Response) => {
+    const body = req.body;
+    let createdPost = await PostService.createPost(body);
+    res.status(201).send({ post: createdPost });
+};
+
+export { getPosts, getPostById, deletePostById, updatePostById, createPost };
