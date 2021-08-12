@@ -1,7 +1,16 @@
-import mongoose from "mongoose";
+import { Schema, model, Document } from "mongoose";
 
-const Schema = mongoose.Schema;
-const UserSchema: mongoose.Schema = new Schema({
+export interface User extends Document {
+    profileName: string;
+    profilePhoto?: string;
+    email: string;
+    phoneNumber?: number;
+    password: string;
+    friends?: Array<string>;
+    isAdmin: boolean;
+}
+
+const UserSchema: Schema = new Schema({
     profileName: {
         type: String,
         required: true,
@@ -9,6 +18,7 @@ const UserSchema: mongoose.Schema = new Schema({
     },
     profilePhoto: {
         type: String,
+        default: "",
     },
     email: {
         type: String,
@@ -22,6 +32,7 @@ const UserSchema: mongoose.Schema = new Schema({
     password: {
         type: String,
         required: true,
+        select: false,
     },
     friends: [
         {
@@ -29,6 +40,10 @@ const UserSchema: mongoose.Schema = new Schema({
             ref: "Friend",
         },
     ],
+    isAdmin: {
+        type: Boolean,
+        default: false,
+    },
 });
 
-export const User = mongoose.model("User", UserSchema);
+export const User = model<User>("User", UserSchema);
