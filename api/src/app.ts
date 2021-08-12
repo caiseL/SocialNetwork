@@ -1,7 +1,7 @@
 import express from "express";
 import mongoose from "mongoose";
 import morgan from "morgan";
-import { index } from "./services/index";
+import { index } from "./index";
 import { authenticateToken } from "./middleware/authenticateToken";
 import { postRouter } from "./routers/postRouter";
 import { userRouter } from "./routers/userRouter";
