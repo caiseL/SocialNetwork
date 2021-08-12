@@ -1,71 +1,77 @@
-import express from "express";
-import { UserService } from "../services/userService";
-import { createUserValidator } from "../validators/usersValidators/createUserValidator";
-import { doesUserExist } from "../validators/usersValidators/doesUserExist";
-import { updateUserValidator } from "../validators/usersValidators/updateUserValidator";
+import { User } from "../models/UserSchema";
+import bcrypt from "bcrypt";
+import { generateAccessToken } from "../utils/generateAccessToken";
+import { CreateUserResponse } from "../typings/CreateUserResponse";
 
-export const getUsers = async (req: express.Request, res: express.Response) => {
-    let users = await UserService.getAllUsers();
-    res.status(200).send({ users: users });
-};
-
-export const getUserById = async (
-    req: express.Request,
-    res: express.Response
-) => {
-    const userID = req.params.id;
-    const errors = await doesUserExist(userID);
-    if (errors.length != 0) {
-        res.status(400).send({ errors: errors });
-        return;
+export class UserController {
+    static async getAllUsers() {
+        const allUser = await User.find({}, "-__v");
+        return allUser;
     }
 
-    let user = await UserService.getUserById(userID);
-    res.status(200).send({ user: user });
-};
-
-export const deleteUserById = async (
-    req: express.Request,
-    res: express.Response
-) => {
-    const userToDelete = req.params.id;
-    const errors = await doesUserExist(userToDelete);
-    if (errors.length != 0) {
-        res.status(400).send({ errors: errors });
-        return;
+    static async getUserById(userID: string): Promise<User> {
+        const user = await User.findById(userID, "-__v");
+        return user!;
     }
 
-    let deletedUser = await UserService.deleteUserById(userToDelete);
-    res.status(200).send({ user: deletedUser });
-};
+    static async createUser(userInfo: User): Promise<CreateUserResponse> {
+        const hash = 10;
+        userInfo.password = await bcrypt.hashSync(userInfo.password, hash);
 
-export const updateUserById = async (
-    req: express.Request,
-    res: express.Response
-) => {
-    const newInfo = req.body;
-    const errors = await updateUserValidator(newInfo);
-    if (errors.length != 0) {
-        res.status(400).send({ errors: errors });
-        return;
+        const newUser = new User(userInfo);
+        await newUser.save();
+
+        const token = generateAccessToken(newUser);
+        const userID = newUser.id;
+
+        const response: CreateUserResponse = {
+            token: token,
+            userID: userID,
+        };
+
+        return response;
     }
 
-    const userId = req.params.id;
-    let updatedUser = await UserService.updateUserById(userId, newInfo);
-    res.status(201).send({ user: updatedUser });
-};
+    static async loginUser(userInfo: User): Promise<string | undefined> {
+        const user = await User.findOne({ email: userInfo.email });
 
-export const createUser = async (
-    req: express.Request,
-    res: express.Response
-) => {
-    const body = req.body;
-    const errors = await createUserValidator(body);
-    if (errors.length != 0) {
-        res.status(400).send({ errors: errors });
-        return;
+        if (!user) return;
+
+        if (await bcrypt.compareSync(userInfo.password, user.password)) {
+            return generateAccessToken(user);
+        }
     }
 
-    let token = await UserService.createUser(body);
-    res.status(201).send({ token: token });
-};
+    static async deleteUserById(userID: string): Promise<User> {
+        const deletedUser = await User.findByIdAndDelete(userID);
+        return deletedUser!;
+    }
+
+    static async updateUserById(
+        userId: string,
+        newInfo: { [key: string]: string }
+    ): Promise<User> {
+        const hash = 10;
+        //! posible bug?
+        if (newInfo.password) {
+            newInfo.password = await bcrypt.hashSync(newInfo.password, hash);
+        }
+        const updatedUser = await User.findOneAndUpdate(
+            {
+                _id: userId,
+            },
+            newInfo,
+            { new: true }
+        );
+        return updatedUser!;
+    }
+
+    static async getRegisteredUsers(userData: User) {
+        return User.find({
+            $or: [
+                { profileName: userData.profileName },
+                { email: userData.email },
+            ],
+        });
+    }
+}
