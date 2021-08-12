@@ -4,14 +4,10 @@ export function isEmailValid(email: string): boolean {
 
     if (!email) return false;
 
-    let isValid = emailRegex.test(email);
+    const isValid = emailRegex.test(email);
     if (!isValid) return false;
 
-    let emailSplitted = email.split("@");
+    const emailSplitted = email.split("@");
 
-    if (emailSplitted[0].length > 64) {
-        return false;
-    }
-
-    return true;
+    return emailSplitted[0].length > 64 ? false : true;
 }

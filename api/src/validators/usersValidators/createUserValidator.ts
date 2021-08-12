@@ -1,14 +1,16 @@
 import { isEmailValid } from "./emailValidator";
 import { User } from "../../models/UserSchema";
 import { isPasswordValid } from "./passwordValidator";
-export async function createUserValidator(userData: { [key: string]: string }) {
+import { UserController } from "../../controllers/userController";
+import { ValidatorResponse } from "../../typings/ValidatorResponse";
+import { isMimeTypeValid } from "../imageValidator";
+
+export async function createUserValidator(
+    userData: User,
+    fileMimeType: string | undefined
+): Promise<ValidatorResponse> {
+    const response: ValidatorResponse = {};
     const errors = [];
-    if (await User.findOne({ email: userData.email })) {
-        errors.push({
-            error: "Validation Error",
-            message: "A user with that email already exists.",
-        });
-    }
 
     if (!userData.profileName) {
         errors.push({
@@ -28,5 +30,37 @@ export async function createUserValidator(userData: { [key: string]: string }) {
         });
     }
 
-    return errors;
+    if (fileMimeType) {
+        if (!isMimeTypeValid(fileMimeType)) {
+            errors.push({
+                error: "Validation Error",
+                message: "File not valid.",
+            });
+        }
+    }
+
+    const registeredUsers = await UserController.getRegisteredUsers(userData);
+    if (registeredUsers) {
+        //! La verdad aqui no sé que estoy haciendo. Lo entiendo y funciona, pero creo que debe de haber otra mejor forma de implementarlo
+        registeredUsers.forEach((user: User) => {
+            if (user.email == userData.email) {
+                errors.push({
+                    error: "Validation Error",
+                    message: "A user with that email already exists.",
+                });
+            }
+            if (user.profileName == userData.profileName) {
+                errors.push({
+                    error: "Validation Error",
+                    message: "A user with that profile name already exists.",
+                });
+            }
+        });
+    }
+
+    errors.length !== 0
+        ? (response.errors = errors)
+        : (response.errors = undefined);
+
+    return response;
 }
