@@ -7,22 +7,38 @@ import { isPasswordValid } from "./passwordValidator";
 export async function updateUserValidator(
     newUserData: User
 ): Promise<ValidatorResponse> {
-    const errors = [];
     const response: ValidatorResponse = {};
+    const errors = [];
 
-    if (newUserData.email && !isEmailValid(newUserData.email)) {
-        errors.push({ error: "Val:idation Error", message: "Email not valid" });
-    }
-
-    if (newUserData.password && !isPasswordValid(newUserData.password)) {
+    if (Object.keys(newUserData).length === 0) {
         errors.push({
             error: "Validation Error",
-            message: "Password not valid",
+            message: "User Info not valid",
         });
     }
+
+    if (newUserData.email || newUserData.email === "") {
+        if (!isEmailValid(newUserData.email)) {
+            errors.push({
+                error: "Validation Error",
+                message: "Email not valid",
+            });
+        }
+    }
+
+    if (newUserData.password || newUserData.password === "") {
+        if (!isPasswordValid(newUserData.password)) {
+            errors.push({
+                error: "Validation Error",
+                message: "Password not valid",
+            });
+        }
+    }
+
     const registeredUsers = await UserController.getRegisteredUsers(
         newUserData
     );
+
     if (registeredUsers) {
         registeredUsers.forEach((user: User) => {
             if (user.email == newUserData.email) {
@@ -40,7 +56,9 @@ export async function updateUserValidator(
         });
     }
 
-    response.errors = errors;
+    errors.length !== 0
+        ? (response.errors = errors)
+        : (response.errors = undefined);
 
     return response;
 }

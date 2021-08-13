@@ -4,12 +4,12 @@ import { ValidatorResponse } from "../../typings/ValidatorResponse";
 export async function returnUserIfExists(
     userID: string
 ): Promise<ValidatorResponse> {
-    const errors = [];
+    let errors = [];
     const response: ValidatorResponse = {};
 
     try {
-        const user = await UserController.getUserById(userID);
-        response.user = user;
+        response.user = await UserController.getUserById(userID);
+        response.errors = undefined;
     } catch (err) {
         errors.push({
             error: "Not Found",
@@ -17,5 +17,6 @@ export async function returnUserIfExists(
         });
         response.errors = errors;
     }
+
     return response;
 }

@@ -14,10 +14,6 @@ userRouter.get("/:id", authenticateToken, (req: Request, res: Response) => {
     return UserService.getUserById(req, res);
 });
 
-userRouter.post("/login", normalizeUserData, (req: Request, res: Response) => {
-    return UserService.loginUser(req, res);
-});
-
 userRouter.post(
     "/",
     multerUpload("profilePhoto"),
@@ -30,11 +26,16 @@ userRouter.post(
 userRouter.put(
     "/:id",
     authenticateToken,
+    multerUpload("profilePhoto"),
     normalizeUserData,
     (req: Request, res: Response) => {
         return UserService.updateUserById(req, res);
     }
 );
+
+userRouter.post("/login", normalizeUserData, (req: Request, res: Response) => {
+    return UserService.loginUser(req, res);
+});
 
 userRouter.delete("/:id", authenticateToken, (req: Request, res: Response) => {
     return UserService.deleteUserById(req, res);

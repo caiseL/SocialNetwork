@@ -9,9 +9,11 @@ export class UserController {
         return allUser;
     }
 
-    static async getUserById(userID: string): Promise<User> {
+    static async getUserById(userID: string): Promise<User | undefined> {
         const user = await User.findById(userID, "-__v");
-        return user!;
+        if (!user) throw new Error();
+
+        return user;
     }
 
     static async createUser(userInfo: User): Promise<CreateUserResponse> {
@@ -62,7 +64,7 @@ export class UserController {
             },
             newInfo,
             { new: true }
-        );
+        ).select("-__v");
         return updatedUser!;
     }
 

@@ -1,6 +1,7 @@
 import express from "express";
 import { UserController } from "../controllers/userController";
-import { returnURLFromPhoto } from "../utils/uploadPhoto";
+import { deleteProfilePhotoFromID } from "../utils/cloudinary/user/deleteProfilePhotoFromID";
+import { returnURLFromPhoto } from "../utils/cloudinary/user/uploadUserPhoto";
 import { createUserValidator } from "../validators/usersValidators/createUserValidator";
 import { returnUserIfExists } from "../validators/usersValidators/returnUserIfExists";
 import { updateUserValidator } from "../validators/usersValidators/updateUserValidator";
@@ -15,36 +16,9 @@ export class UserService {
         const userID = req.params.id;
 
         const { errors, user } = await returnUserIfExists(userID);
-        if (errors) {
-            return res.status(400).send({ errors: errors });
-        }
-        return res.status(200).send({ user: user });
-    }
-
-    static async deleteUserById(req: express.Request, res: express.Response) {
-        const userToDeleteID = req.params.id;
-
-        const { errors, user } = await returnUserIfExists(userToDeleteID);
         if (errors) return res.status(400).send({ errors: errors });
 
         return res.status(200).send({ user: user });
-    }
-
-    static async updateUserById(req: express.Request, res: express.Response) {
-        const newUserInfo = req.body;
-
-        const { errors } = await updateUserValidator(newUserInfo);
-        if (errors !== undefined) {
-            return res.status(400).send({ errors: errors });
-        }
-
-        const userToUpdateID = req.params.id;
-        const updatedUser = await UserController.updateUserById(
-            userToUpdateID,
-            newUserInfo
-        );
-
-        return res.status(201).send({ user: updatedUser });
     }
 
     static async createUser(req: express.Request, res: express.Response) {
@@ -53,9 +27,7 @@ export class UserService {
         const fileMimeType = file?.mimetype;
 
         const { errors } = await createUserValidator(newUserInfo, fileMimeType);
-        if (errors) {
-            return res.status(400).send({ errors: errors });
-        }
+        if (errors) return res.status(400).send({ errors: errors });
 
         const { token, userID } = await UserController.createUser(newUserInfo);
 
@@ -77,5 +49,43 @@ export class UserService {
         if (!token) return res.status(403);
 
         return res.status(200).send({ token: token });
+    }
+
+    static async updateUserById(req: express.Request, res: express.Response) {
+        const newUserInfo = req.body;
+        const file = req.file;
+
+        const { errors } = await updateUserValidator(newUserInfo);
+        if (errors) return res.status(400).send({ errors: errors });
+
+        const userToUpdateID = req.params.id;
+        if (file) {
+            const profilePhotoURL = await returnURLFromPhoto(
+                file,
+                userToUpdateID
+            );
+            newUserInfo.profilePhoto = profilePhotoURL;
+        }
+
+        const updatedUser = await UserController.updateUserById(
+            userToUpdateID,
+            newUserInfo
+        );
+
+        return res.status(201).send({ user: updatedUser });
+    }
+
+    static async deleteUserById(req: express.Request, res: express.Response) {
+        const userToDeleteID = req.params.id;
+
+        const { errors, user } = await returnUserIfExists(userToDeleteID);
+        if (errors) return res.status(400).send({ errors: errors });
+
+        if (user?.profilePhoto) {
+            await deleteProfilePhotoFromID(user?.id);
+        }
+        await UserController.deleteUserById(user?.id);
+
+        return res.status(200).send({ user: user });
     }
 }
