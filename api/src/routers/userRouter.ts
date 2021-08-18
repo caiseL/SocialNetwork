@@ -1,4 +1,5 @@
 import { Request, Response, Router } from "express";
+import multer from "multer";
 import { multerUpload } from "../config/multerUpload";
 import { authenticateToken } from "../middleware/authenticateToken";
 import { normalizeUserData } from "../middleware/normalizeUserData";

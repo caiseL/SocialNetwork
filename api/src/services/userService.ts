@@ -3,6 +3,7 @@ import { UserController } from "../controllers/userController";
 import { deleteProfilePhotoFromID } from "../utils/cloudinary/user/deleteProfilePhotoFromID";
 import { returnURLFromPhoto } from "../utils/cloudinary/user/uploadUserPhoto";
 import { createUserValidator } from "../validators/usersValidators/createUserValidator";
+import { loginValidator } from "../validators/usersValidators/loginValidator";
 import { returnUserIfExists } from "../validators/usersValidators/returnUserIfExists";
 import { updateUserValidator } from "../validators/usersValidators/updateUserValidator";
 
@@ -45,20 +46,30 @@ export class UserService {
 
     static async loginUser(req: express.Request, res: express.Response) {
         const userInfo = req.body;
+
+        const { errors } = loginValidator(userInfo);
+        if (errors) return res.status(400).send({ errors: errors });
+
         const token = await UserController.loginUser(userInfo);
-        if (!token) return res.status(403);
+        if (!token)
+            return res.status(403).send({
+                errors: {
+                    error: "Validation Error",
+                    message: "Invalid credentials",
+                },
+            });
 
         return res.status(200).send({ token: token });
     }
 
     static async updateUserById(req: express.Request, res: express.Response) {
         const newUserInfo = req.body;
+        const userToUpdateID = req.params.id;
         const file = req.file;
 
         const { errors } = await updateUserValidator(newUserInfo);
         if (errors) return res.status(400).send({ errors: errors });
 
-        const userToUpdateID = req.params.id;
         if (file) {
             const profilePhotoURL = await returnURLFromPhoto(
                 file,

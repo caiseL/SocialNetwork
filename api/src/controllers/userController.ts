@@ -4,13 +4,13 @@ import { generateAccessToken } from "../utils/generateAccessToken";
 import { CreateUserResponse } from "../typings/CreateUserResponse";
 
 export class UserController {
-    static async getAllUsers() {
-        const allUser = await User.find({}, "-__v");
+    static async getAllUsers(): Promise<User[]> {
+        const allUser = await User.find({}, "-__v").lean<User[]>();
         return allUser;
     }
 
-    static async getUserById(userID: string): Promise<User | undefined> {
-        const user = await User.findById(userID, "-__v");
+    static async getUserById(userID: string): Promise<User> {
+        const user = await User.findById(userID, "-__v").lean<User>();
         if (!user) throw new Error();
 
         return user;
@@ -20,11 +20,10 @@ export class UserController {
         const hash = 10;
         userInfo.password = await bcrypt.hashSync(userInfo.password, hash);
 
-        const newUser = new User(userInfo);
-        await newUser.save();
+        const newUser = await new User(userInfo).save();
 
         const token = generateAccessToken(newUser);
-        const userID = newUser.id;
+        const { id: userID } = newUser;
 
         const response: CreateUserResponse = {
             token: token,
@@ -35,13 +34,17 @@ export class UserController {
     }
 
     static async loginUser(userInfo: User): Promise<string | undefined> {
-        const user = await User.findOne({ email: userInfo.email });
+        const user = await User.findOne({
+            email: userInfo.email,
+        })
+            .select("password")
+            .lean<User>();
 
         if (!user) return;
 
-        if (await bcrypt.compareSync(userInfo.password, user.password)) {
-            return generateAccessToken(user);
-        }
+        return (await bcrypt.compareSync(userInfo.password, user.password))
+            ? generateAccessToken(user)
+            : undefined;
     }
 
     static async deleteUserById(userID: string): Promise<User> {
@@ -75,5 +78,9 @@ export class UserController {
                 { email: userData.email },
             ],
         });
+    }
+
+    static async doesUserExist(userID: string) {
+        return await User.exists({ _id: userID });
     }
 }
