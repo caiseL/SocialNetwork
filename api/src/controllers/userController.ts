@@ -1,7 +1,7 @@
 import { User } from "../models/UserSchema";
 import bcrypt from "bcrypt";
 import { generateAccessToken } from "../utils/generateAccessToken";
-import { CreateUserResponse } from "../typings/CreateUserResponse";
+import { CreateUserResponse } from "../typings/validators/CreateUserResponse";
 
 export class UserController {
     static async getAllUsers(): Promise<User[]> {
@@ -11,6 +11,7 @@ export class UserController {
 
     static async getUserById(userID: string): Promise<User> {
         const user = await User.findById(userID, "-__v").lean<User>();
+
         if (!user) throw new Error();
 
         return user;
@@ -80,7 +81,8 @@ export class UserController {
         });
     }
 
-    static async doesUserExist(userID: string) {
+    static async doesUserExist(userID: string): Promise<boolean> {
+        if (!userID) return false;
         return await User.exists({ _id: userID });
     }
 }
