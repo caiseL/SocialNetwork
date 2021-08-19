@@ -2,9 +2,9 @@ import jwt from "jsonwebtoken";
 import { User } from "../models/UserSchema";
 
 export function generateAccessToken(userInformation: User) {
-    const tokenExpirationTime = "7d";
+    const tokenExpirationTime = "3d";
     return jwt.sign(
-        { id: userInformation.id },
+        { id: userInformation._id },
         process.env.TOKEN_SECRET as string,
         {
             expiresIn: tokenExpirationTime,
