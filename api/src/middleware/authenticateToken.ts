@@ -16,12 +16,14 @@ export function authenticateToken(
         });
 
     const tokenSecret = process.env.TOKEN_SECRET as string;
-    jwt.verify(token, tokenSecret, (err: any, user: any) => {
-        if (err) return res.sendStatus(403);
+    jwt.verify(token, tokenSecret, async (err: any, user: any) => {
         //! Solución temporal. Lo mejor será usar Redis para guardar esos tokens
-        if (!UserController.doesUserExist(user.id)) return res.sendStatus(403);
+        if (err || !user.id || !(await UserController.doesUserExist(user.id)))
+            return res.sendStatus(403);
 
         req.user = user;
+        console.log(req.user);
+        console.log(user.id);
         next();
     });
 }
