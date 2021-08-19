@@ -10,40 +10,44 @@ export interface User extends Document {
     isAdmin: boolean;
 }
 
-const UserSchema: Schema = new Schema({
-    profileName: {
-        type: String,
-        required: true,
-        maxLength: 40,
-    },
-    profilePhoto: {
-        type: String,
-        default: "",
-    },
-    email: {
-        type: String,
-        required: true,
-        maxLength: 50,
-    },
-    phoneNumber: {
-        type: Number,
-        maxLength: 15,
-    },
-    password: {
-        type: String,
-        required: true,
-        select: false,
-    },
-    friends: [
-        {
-            type: Schema.Types.ObjectId,
-            ref: "Friend",
+const UserSchema: Schema = new Schema(
+    {
+        profileName: {
+            type: String,
+            required: true,
+            maxLength: 40,
         },
-    ],
-    isAdmin: {
-        type: Boolean,
-        default: false,
+        profilePhoto: {
+            type: String,
+            default: "",
+        },
+        email: {
+            type: String,
+            required: true,
+            maxLength: 50,
+        },
+        phoneNumber: {
+            type: Number,
+            maxLength: 15,
+        },
+        password: {
+            type: String,
+            required: true,
+            select: false,
+        },
+        friends: [
+            {
+                type: Schema.Types.ObjectId,
+                ref: "Friend",
+            },
+        ],
+        isAdmin: {
+            type: Boolean,
+            default: false,
+            select: false,
+        },
     },
-});
+    { timestamps: true }
+);
 
 export const User = model<User>("User", UserSchema);
