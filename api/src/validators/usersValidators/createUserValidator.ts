@@ -2,14 +2,14 @@ import { isEmailValid } from "./emailValidator";
 import { User } from "../../models/UserSchema";
 import { isPasswordValid } from "./passwordValidator";
 import { UserController } from "../../controllers/userController";
-import { ValidatorResponse } from "../../typings/ValidatorResponse";
 import { isMimeTypeValid } from "../imageValidator";
+import { UserValidatorResponse } from "../../typings/validators/UserValidatorResponse";
 
 export async function createUserValidator(
     userData: User,
     fileMimeType: string | undefined
-): Promise<ValidatorResponse> {
-    const response: ValidatorResponse = {};
+): Promise<UserValidatorResponse> {
+    const response: UserValidatorResponse = {};
     const errors = [];
 
     if (!userData.profileName) {

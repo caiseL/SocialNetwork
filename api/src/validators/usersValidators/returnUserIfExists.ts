@@ -1,11 +1,11 @@
 import { UserController } from "../../controllers/userController";
-import { ValidatorResponse } from "../../typings/ValidatorResponse";
+import { UserValidatorResponse } from "../../typings/validators/UserValidatorResponse";
 
 export async function returnUserIfExists(
     userID: string
-): Promise<ValidatorResponse> {
+): Promise<UserValidatorResponse> {
     let errors = [];
-    const response: ValidatorResponse = {};
+    const response: UserValidatorResponse = {};
 
     try {
         response.user = await UserController.getUserById(userID);

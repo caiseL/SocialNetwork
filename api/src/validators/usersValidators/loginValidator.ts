@@ -1,9 +1,9 @@
-import { ValidatorResponse } from "../../typings/ValidatorResponse";
+import { UserValidatorResponse } from "../../typings/validators/UserValidatorResponse";
 
 export function loginValidator(userInfo: {
     [key: string]: string;
-}): ValidatorResponse {
-    const response: ValidatorResponse = {};
+}): UserValidatorResponse {
+    const response: UserValidatorResponse = {};
     const errors = [];
 
     if (Object.keys(userInfo).length === 0) {

@@ -1,13 +1,13 @@
 import { UserController } from "../../controllers/userController";
 import { User } from "../../models/UserSchema";
-import { ValidatorResponse } from "../../typings/ValidatorResponse";
+import { UserValidatorResponse } from "../../typings/validators/UserValidatorResponse";
 import { isEmailValid } from "./emailValidator";
 import { isPasswordValid } from "./passwordValidator";
 
 export async function updateUserValidator(
     newUserData: User
-): Promise<ValidatorResponse> {
-    const response: ValidatorResponse = {};
+): Promise<UserValidatorResponse> {
+    const response: UserValidatorResponse = {};
     const errors = [];
 
     if (Object.keys(newUserData).length === 0) {
