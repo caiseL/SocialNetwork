@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node dist/app.js",
+    "prod": "tsc && node dist/app.js",
     "dev": "nodemon src/app.ts"
   },
   "author": "",
