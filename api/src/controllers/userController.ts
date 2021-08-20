@@ -1,7 +1,7 @@
 import { User } from "../models/UserSchema";
 import bcrypt from "bcrypt";
 import { generateAccessToken } from "../utils/generateAccessToken";
-import { CreateUserResponse } from "../typings/validators/CreateUserResponse";
+import { CreateUserResponse } from "../typings/validators/userValidators/CreateUserResponse";
 
 export class UserController {
     static async getAllUsers(): Promise<User[]> {
@@ -22,16 +22,12 @@ export class UserController {
         userInfo.password = await bcrypt.hashSync(userInfo.password, hash);
 
         const newUser = await new User(userInfo).save();
-
         const token = generateAccessToken(newUser);
-        const { id: userID } = newUser;
 
-        const response: CreateUserResponse = {
+        return {
             token: token,
-            userID: userID,
+            user: newUser,
         };
-
-        return response;
     }
 
     static async loginUser(userInfo: User): Promise<string | undefined> {
@@ -58,10 +54,10 @@ export class UserController {
         newInfo: { [key: string]: string }
     ): Promise<User> {
         const hash = 10;
-        //! posible bug?
         if (newInfo.password) {
             newInfo.password = await bcrypt.hashSync(newInfo.password, hash);
         }
+
         const updatedUser = await User.findOneAndUpdate(
             {
                 _id: userId,

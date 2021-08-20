@@ -30,13 +30,13 @@ export class UserService {
         const { errors } = await createUserValidator(newUserInfo, fileMimeType);
         if (errors) return res.status(400).send({ errors: errors });
 
-        const { token, userID } = await UserController.createUser(newUserInfo);
+        const { token, user } = await UserController.createUser(newUserInfo);
 
         //? Podría mandar el token, pero seguir trabajando con la foto luego de mandarlo para no tardar tanto: "res.status(201).send({ token: token });"
 
         if (file) {
-            const profilePhotoURL = await returnURLFromPhoto(file, userID);
-            await UserController.updateUserById(userID, {
+            const profilePhotoURL = await returnURLFromPhoto(file, user.id);
+            await UserController.updateUserById(user.id, {
                 profilePhoto: profilePhotoURL,
             });
         }
