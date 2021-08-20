@@ -2,10 +2,8 @@
 
 **WIP**. It will probably take a while till I finished it.
 
-[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/) $~$
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
 ![10%](https://progress-bar.dev/10)
-
-<br />
 
 ## API
 
@@ -14,8 +12,6 @@
 -   Docker 🐋
 -   Cloudinary ☁️
 -   JWT 🔑
-
-<br />
 
 ### How To Use It
 
@@ -35,15 +31,11 @@ $ npm run prod
 # Don't forget to use your own .env file in api (check src/config/checkEnv.ts)
 ```
 
-<br />
-
 ### How to run it in a container
 
 ```bash
 # WIP
 ```
-
-<br />
 
 ## To Do
 
