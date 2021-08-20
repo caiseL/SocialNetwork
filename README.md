@@ -2,7 +2,7 @@
 
 **WIP**. It will probably take a while till I finished it.
 
-[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://lbesson.mit-license.org/)
+[![MIT license](https://img.shields.io/badge/License-MIT-blue.svg)](https://mit-license.org/)
 ![5%](https://progress-bar.dev/5)
 
 ## API
