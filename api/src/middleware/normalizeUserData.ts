@@ -10,5 +10,9 @@ export function normalizeUserData(
 
     if (req.body.email) req.body.email = req.body.email.toLowerCase();
 
+    if (req.body.isAdmin) req.body.isAdmin = undefined;
+
+    if (req.body.friends) req.body.friends = undefined;
+
     next();
 }
