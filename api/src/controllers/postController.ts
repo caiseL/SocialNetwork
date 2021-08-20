@@ -1,56 +1,41 @@
 import { Post } from "../models/PostSchema";
 
-export class PostService {
-    static async getAllPost() {
-        try {
-            const allPost = await Post.find({});
-            return allPost;
-        } catch (e) {
-            console.log(`Couldn't fetch every post ${e}`);
-        }
+export class PostController {
+    static async getPosts(): Promise<Post[]> {
+        const allPost = await Post.find({});
+        return allPost;
     }
 
-    static async getPostById(postID: string) {
-        try {
-            const post = await Post.findById(postID);
-            return post;
-        } catch (e) {
-            console.log(`Couldn't get that post ${e}`);
-        }
+    static async getPostById(postID: string): Promise<Post> {
+        const post = await Post.findById(postID);
+        return post!;
     }
 
-    static async createPost(data: { [key: string]: string }) {
-        try {
-            const newPost = new Post(data);
-            const response = await newPost.save();
-            return response;
-        } catch (e) {
-            throw e;
-        }
+    static async createPost(data: { [key: string]: string }): Promise<Post> {
+        const newPost = await new Post(data).save();
+        return newPost;
     }
 
-    static async deletePostById(postID: string) {
-        try {
-            const deletedPost = await Post.findOneAndDelete({
-                _id: postID,
-            });
-            return deletedPost;
-        } catch (e) {
-            console.error(e);
-        }
+    static async deletePostById(postID: string): Promise<void> {
+        await Post.findOneAndDelete({
+            _id: postID,
+        });
     }
 
     static async updatePostById(
-        data: { [key: string]: string },
-        postID: string
+        postID: string,
+        postInfo: { [key: string]: string }
     ) {
-        try {
-            const updatedPost = await Post.findOneAndUpdate({
-                _id: postID,
-            });
-            return updatedPost;
-        } catch (e) {
-            console.error(e);
+        if (postInfo.media) {
+            // Checar foto o video, blah,lba,lh,alb,hlah
         }
+        const updatedPost = await Post.findOneAndUpdate(
+            {
+                _id: postID,
+            },
+            postInfo,
+            { new: true }
+        );
+        return updatedPost;
     }
 }

@@ -1,33 +1,58 @@
 import express from "express";
-import { PostService } from "../controllers/postController";
+import { PostController } from "../controllers/postController";
+import { returnPostIfExists } from "../validators/postsValidators/returnPostIfExists";
 
-const getPosts = async (req: express.Request, res: express.Response) => {
-    let posts = await PostService.getAllPost();
-    res.status(200).send({ posts: posts });
-};
+export class PostService {
+    static async getPosts(req: express.Request, res: express.Response) {
+        console.log(req.user.id);
+        let posts = await PostController.getPosts();
+        res.status(200).send({ posts: posts });
+    }
 
-const getPostById = async (req: express.Request, res: express.Response) => {
-    const requestID = req.params.id;
-    let post = await PostService.getPostById(requestID);
-    res.status(200).send({ post: post });
-};
+    static async getPostById(req: express.Request, res: express.Response) {
+        const postID = req.params.id;
 
-const deletePostById = (req: express.Request, res: express.Response) => {
-    const postToDelete = req.params.id;
-    let deletedPost = PostService.deletePostById(postToDelete);
+        const { errors, post } = await returnPostIfExists(postID);
+        if (errors) return res.status(400).send({ errors: errors });
 
-    res.status(200).send({ post: deletedPost });
-};
+        res.status(200).send({ post: post });
+    }
 
-const updatePostById = (req: express.Request, res: express.Response) => {
-    const toUpdate = req.body;
-    console.log(toUpdate);
-};
+    static async createPost(req: express.Request, res: express.Response) {
+        const body = req.body;
+        const file = req.file;
+        let createdPost = await PostController.createPost(body);
+        if (file) {
+            //const profilePhotoURL = await returnURLFromPhoto(file, userID);
+            await PostController.updatePostById(createdPost.id, {
+                //profilePhoto: profilePhotoURL,
+            });
+        }
+        res.status(201).send({ post: createdPost });
+    }
 
-const createPost = async (req: express.Request, res: express.Response) => {
-    const body = req.body;
-    let createdPost = await PostService.createPost(body);
-    res.status(201).send({ post: createdPost });
-};
+    static async updatePostById(req: express.Request, res: express.Response) {
+        const postID = req.params.id;
+        const postInfo = req.body;
+        console.log(postInfo);
 
-export { getPosts, getPostById, deletePostById, updatePostById, createPost };
+        let updatedPost = PostController.updatePostById(postID, postInfo);
+
+        res.status(200).send({ post: updatedPost });
+    }
+
+    static async deletePostById(req: express.Request, res: express.Response) {
+        const postToDelete = req.params.id;
+
+        const { errors, post } = await returnPostIfExists(postToDelete);
+        if (errors) return res.status(400).send({ errors: errors });
+
+        if (post?.media) {
+            // Delete it, fuck it
+        }
+
+        await PostController.deletePostById(post?.id);
+
+        res.status(200).send({ post: post });
+    }
+}
