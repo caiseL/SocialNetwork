@@ -1,5 +1,5 @@
 import { UserController } from "../../controllers/userController";
-import { UserResponse } from "../../typings/validators/userValidators/UserValidatorResponse";
+import { UserResponse } from "../../typings/validators/userValidators/UserResponse";
 
 export async function returnUserIfExists(
     userID: string

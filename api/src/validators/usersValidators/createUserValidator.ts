@@ -3,13 +3,13 @@ import { User } from "../../models/UserSchema";
 import { isPasswordValid } from "./passwordValidator";
 import { UserController } from "../../controllers/userController";
 import { isMimeTypeValid } from "../imageValidator";
-import { UserValidatorResponse } from "../../typings/validators/UserValidatorResponse";
+import { UserResponse } from "../../typings/validators/userValidators/UserResponse";
 
 export async function createUserValidator(
     userData: User,
     fileMimeType: string | undefined
-): Promise<UserValidatorResponse> {
-    const response: UserValidatorResponse = {};
+): Promise<UserResponse> {
+    const response: UserResponse = {};
     const errors = [];
 
     if (!userData.profileName) {
