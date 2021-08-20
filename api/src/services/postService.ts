@@ -1,5 +1,7 @@
 import express from "express";
 import { PostController } from "../controllers/postController";
+import { returnURLFromPhoto } from "../utils/cloudinary/user/uploadUserPhoto";
+import { createPostValidator } from "../validators/postsValidators/createPostValidator";
 import { returnPostIfExists } from "../validators/postsValidators/returnPostIfExists";
 
 export class PostService {
@@ -19,13 +21,24 @@ export class PostService {
     }
 
     static async createPost(req: express.Request, res: express.Response) {
-        const body = req.body;
+        const postInfo = req.body;
         const file = req.file;
-        let createdPost = await PostController.createPost(body);
+        console.log(req.user.id);
+        postInfo.postedBy = req.user.id;
+
+        const { errors } = createPostValidator(postInfo);
+        if (errors) return res.status(400).send({ errors: errors });
+
+        let createdPost = await PostController.createPost(postInfo);
         if (file) {
-            //const profilePhotoURL = await returnURLFromPhoto(file, userID);
+            //* WIP
+            // Piensa que aquí también puede ser un video, asi que a lo mejor tendrás que crear tu propio método
+            const mediaPhotoURL = await returnURLFromPhoto(
+                file,
+                createdPost.id
+            );
             await PostController.updatePostById(createdPost.id, {
-                //profilePhoto: profilePhotoURL,
+                media: mediaPhotoURL,
             });
         }
         res.status(201).send({ post: createdPost });
