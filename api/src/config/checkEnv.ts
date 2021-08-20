@@ -26,7 +26,7 @@ export function checkEnv() {
     }
 
     if (thereIsErrors) {
-        throw new Error("Couldn't found every environment variable in env")
-            .message;
+        console.log("You need more env variables");
+        process.exit();
     }
 }
