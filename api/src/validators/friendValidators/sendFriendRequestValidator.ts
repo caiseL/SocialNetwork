@@ -1,5 +1,5 @@
 import { Friend } from "../../models/FriendSchema";
-import { SendFriendRequestValidator } from "../../typings/validators/SendFriendRequestValidator";
+import { SendFriendRequestValidator } from "../../typings/validators/userValidators/SendFriendRequestValidator";
 
 export async function sendFriendRequestValidator(
     requesterID: string,
